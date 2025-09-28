@@ -1,3 +1,7 @@
-# CS40---Massimo
-wgoldm03
-mbotta01
+# CS40
+## AJ Romeo and William Goldman
+
+I am testing vim right now
+
+- wgoldm03
+- aromeo02
