@@ -71,9 +71,19 @@ UArray2b_T UArray2b_new (int width, int height, int size, int blocksize)
         array->blocks_wide = blocks_wide;
         array->blocks_high = blocks_high;
         
-        array->blocks = UArray2_new(blocks_wide, blocks_high, blocksize*blocksize);
+        T array;
+        NEW(array);
+        array->width  = width;
+        array->height = height;
+        array->size   = size;
+        array->rows   = UArray_new(height, sizeof(UArray_T));
 
-        UArray2b_map(array, initialize_block, &size);
+        for (i = 0; i < height; i++) {
+                UArray_T *rowp = UArray_at(array->rows, i);
+                *rowp = UArray_new(width, size);
+        }
+        
+        assert(is_ok(array));
 
         return array;
 }
@@ -88,14 +98,6 @@ void initialize_block(int col, int row, UArray2b_T array2b, void *elem,
 
         
         *(UArray_T *)elem = UArray_new(array_Length, *(int *)size);
-
-        // UArray2_map_row_major(UArray2_T arr, void apply(int col, int row, 
-        //                                 UArray2_T arr, void *elem, void *cl), 
-        //                                 void *cl)
-
-        // for (int i = 0; i < array_Length; i++) {
-        //         UArray_at(*elem, i) = 
-        // }
 }
 
 
