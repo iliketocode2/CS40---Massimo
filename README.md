@@ -1,7 +1,7 @@
 # CS40
-## Massimo Bottari and William Goldman
+## AJ Romeo and William Goldman
 
 I am testing vim right now
 
 - wgoldm03
-- mbotta01
+- aromeo02

@@ -180,9 +180,11 @@ void *UArray2_at(UArray2_T arr, int col, int row)
         if (arr == NULL) {
                 RAISE(Assert_Failed);
         }
+        printf("getting cell at %d, %d\n", col, row);
         if (col < 0 || col >= arr->width || row < 0 || row >= arr->height) {
                 RAISE(Out_Of_Bounds);
         }
+
         return UArray_at(arr->grid, (row * arr->width) + col);
 }
         

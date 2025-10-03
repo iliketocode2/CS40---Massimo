@@ -38,6 +38,14 @@ int main(int argc, char *argv[])
         int   rotation       = 0;
         int   i;
 
+        /*
+        ---------------------REMOVE THESE LATER, I JUST ADDED THEM TO GET 
+        IT TO COMPILE---------------------
+        */
+
+        (void) time_file_name;
+        /*--------------------------------------------*/
+
         /* default to UArray2 methods */
         A2Methods_T methods = uarray2_methods_plain; 
         assert(methods != NULL);
