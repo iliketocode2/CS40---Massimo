@@ -48,17 +48,16 @@ UArray2b_T UArray2b_new (int width, int height, int size, int blocksize)
         assert(blocksize >= 1 && size >= 1);
         assert(width >= 0 && height >= 0);
 
-        UArray2b_T array = malloc(sizeof(*array));
-
-        assert(array != NULL);
-
-        array->width = width;
+        NEW(array);
+        array->width  = width;
         array->height = height;
-        array->blocksize = blocksize;
-        array->size = size;
-        
+        array->size   = blocksize;
+
         int blocks_wide = width / blocksize;
         int blocks_high = height / blocksize;
+
+        array->blocks_wide = blocks_wide;
+        array->blocks_high = blocks_high;
 
         if ((float)width / (float)blocksize > width / blocksize) {
                 blocks_wide++;
@@ -68,23 +67,16 @@ UArray2b_T UArray2b_new (int width, int height, int size, int blocksize)
                 blocks_high++;
         }
 
-        array->blocks_wide = blocks_wide;
-        array->blocks_high = blocks_high;
-        
-        T array;
-        NEW(array);
-        array->width  = width;
-        array->height = height;
-        array->size   = size;
-        array->rows   = UArray_new(height, sizeof(UArray_T));
+        array->blocks = UArray2_new(blocks_wide, blocks_high, sizeof(UArray_T));
 
-        for (i = 0; i < height; i++) {
-                UArray_T *rowp = UArray_at(array->rows, i);
-                *rowp = UArray_new(width, size);
+        for (i = 0; i < blocks_wide; i++) {
+                for (int i = 0; i < blocks_high; i++) {
+                        UArray_T *blockp = UArray2_at(array->blocks, i, j);
+                        *blockp = UArray_new(blocksize * blocksize, size);
+                }
         }
         
         assert(is_ok(array));
-
         return array;
 }
 
@@ -98,6 +90,14 @@ void initialize_block(int col, int row, UArray2b_T array2b, void *elem,
 
         
         *(UArray_T *)elem = UArray_new(array_Length, *(int *)size);
+
+        // UArray2_map_row_major(UArray2_T arr, void apply(int col, int row, 
+        //                                 UArray2_T arr, void *elem, void *cl), 
+        //                                 void *cl)
+
+        // for (int i = 0; i < array_Length; i++) {
+        //         UArray_at(*elem, i) = 
+        // }
 }
 
 
