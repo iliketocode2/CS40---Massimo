@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
         printf("Putting in a width of %d, a height of %d, data size of %d, and a blocksize of %d\n", width, height, size, blocksize);
         UArray2b_T our_array = UArray2b_new(width, height, size, blocksize);
 
+        printf("ABOUT TO FREE\n");
         free(our_array);
 
         return 0;

@@ -33,6 +33,7 @@ struct UArray2b_T {
         UArray2_T blocks;
 };
 
+void help_free(int col, int row, UArray2_T blocks, void *elem, void *cl);
 void initialize_block(int col, int row, UArray2b_T array2b, void *elem,
                       void *size);
 
@@ -70,7 +71,7 @@ UArray2b_T UArray2b_new (int width, int height, int size, int blocksize)
         array->blocks_wide = blocks_wide;
         array->blocks_high = blocks_high;
         
-        array->blocks = UArray2_new(blocks_wide, blocks_high, sizeof(UArray_T));
+        array->blocks = UArray2_new(blocks_wide, blocks_high, blocksize*blocksize);
 
         UArray2b_map(array, initialize_block, &size);
 
@@ -105,6 +106,7 @@ UArray2b_T UArray2b_new_64K_block(int width, int height, int size)
         assert(width >= 0 && height >= 0);
 
         UArray2b_T array = malloc(sizeof(*array));
+
         assert(array != NULL);
 
         if (width * height * size <= 65536) {
@@ -118,13 +120,10 @@ UArray2b_T UArray2b_new_64K_block(int width, int height, int size)
         array->size = size;
 
         /*
-        - a total of 64KB wil be allocated (this is what it has to fit into)
-        - check to make sure that memory was allocated
-        - pick a blocksize that is as big as possible so that it fits in 64KB but
-                also fits the size of each element
+        - if the data is bigger than 64KB, then blocksize = 64KB
+        - else if the data is smaller than 64KB make the blocksize the same size
+          as the data, so there will be 1 block
         */
-
-        // 1024 * 64 = 65536 bytes sqrt(65536) = 256.
         
         return array;
 
@@ -134,7 +133,20 @@ void UArray2b_free(UArray2b_T *array2b)
 {
         assert(array2b != NULL && *array2b != NULL);
 
-        // free it
+        // map over every uarray in the uarray2b
+        UArray2_map_row_major((*array2b)->blocks, help_free, NULL);
+        UArray2_free(&((*array2b)->blocks));
+        free(*array2b);
+}
+
+void help_free(int col, int row, UArray2_T blocks, void *elem, void *cl) 
+{
+        (void) col;
+        (void) row;
+        (void) blocks;
+        (void) cl;
+
+        UArray2_free((UArray2_T *)elem);
 }
 
 int UArray2b_width(UArray2b_T array2b)
@@ -173,7 +185,7 @@ void *UArray2b_at(UArray2b_T array2b, int column, int row)
         int block_col = column / array2b->blocksize;
         int block_row = row / array2b->blocksize;
 
-        return UArray2_at(array2b->blocks, block_col, block_row); // ? 
+        return UArray2_at(array2b->blocks, block_col, block_row);
 }
 
 /* visits every cell in one block before moving to another block */
@@ -182,19 +194,18 @@ void UArray2b_map(UArray2b_T array2b,
                                      void *elem, void *pixel),
                           void *pixel)
 {
-        // if (array2b == NULL || apply == NULL) {
-        //         RAISE(Assert_Failed);
-        // }
         assert(array2b != NULL);
         assert(apply != NULL);
 
-        printf("Going over these dimensions: %d, %d\n", array2b->blocks_wide, array2b->blocks_high);
+        printf("Going over these dimensions: %d, %d\n", array2b->blocks_wide, 
+                array2b->blocks_high);
 
         for (int outer_col = 0; outer_col < array2b->blocks_wide; outer_col++) {
-                for (int outer_row = 0; outer_row < array2b->blocks_high; outer_row++) {
+                for (int outer_row = 0; outer_row < array2b->blocks_high; 
+                        outer_row++) {
                         apply(outer_col, outer_row, array2b,
-                                UArray2_at(array2b->blocks, outer_col, outer_row),
-                                pixel);
+                                UArray2_at(array2b->blocks, outer_col, 
+                                        outer_row), pixel);
                 }
         }
 }

@@ -18,6 +18,12 @@ static A2Methods_UArray2 new_with_blocksize(int width, int height, int size,
                                             int blocksize)
 {
         //TODO: Implement this function and remove the dummy return statement.
+
+
+        // if the blocksize is 64KB or bugger, call make uarray2b 64
+
+        // else
+
         (void) blocksize;
         return NULL;
 }
